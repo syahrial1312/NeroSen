@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .card .icon {
+            font-size: 2em;
+        }
+
+        .heart-rate {
+            background-color: #ffe5e5;
+        }
+
+        .temperature {
+            background-color: #e5f2ff;
+        }
+
+        .stress {
+            grid-column: span 2;
+            background-color: #fff5cc;
+        }
+
+        .suggestion {
+            grid-column: span 2;
+            background-color: #e6ffe6;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .controls button.inactive {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .controls button:not(.inactive) {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .controls button:not(.inactive):hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="card heart-rate">
+            <h2>Heart Rate</h2>
+            <div class="value" id="heart-rate">Loading... <span class="icon">❤️</span></div>
+            <div>BPM</div>
+        </div>
+        <div class="card temperature">
+            <h2>Temperature</h2>
+            <div class="value" id="body-temperature">Loading... <span class="icon">🌡️</span></div>
+            <div>°C</div>
+        </div>
+        <div class="card stress">
+            <span class="label">Stress Prediction:</span> <span id="prediction-text">Loading...</span>
+        </div>
+        <div class="card suggestion">
+            <span class="label">Suggestion:</span> Take a short break and relax.
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2>Heart Rate History</h2>
+        <canvas id="heartRateChart"></canvas>
+    </div>
+
+    <div class="controls">
+        <button id="start-system" class="inactive" disabled>Start System</button>
+        <button id="stop-system">Stop System</button>
+        <button id="start-history" class="inactive" disabled>Start History</button>
+        <button id="stop-history">Stop History</button>
+    </div>
+
+    <script>
+        const heartRateLabels = [];
+        const heartRateData = [];
+
+        const ctx = document.getElementById('heartRateChart').getContext('2d');
+        const heartRateChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: heartRateLabels,
+                datasets: [{
+                    label: 'Heart Rate (BPM)',
+                    data: heartRateData,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Heart Rate (BPM)'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        let realtimeInterval = null;
+        let historyInterval = null;
+        let latestHeartRate = null;
+
+        function fetchRealtimeData() {
+            $.ajax({
+                url: '/get_realtime_data',
+                method: 'GET',
+                success: function(response) {
+                    $('#heart-rate').html(response.heart_rate + ' <span class="icon">❤️</span>');
+                    $('#body-temperature').html(response.body_temperature + ' <span class="icon">🌡️</span>');
+                    $('#prediction-text').text(response.prediction_text);
+                    latestHeartRate = response.heart_rate;
+                },
+                error: function() {
+                    console.error('Error fetching data');
+                }
+            });
+        }
+
+        function updateChart() {
+            const now = new Date().toLocaleTimeString();
+
+            if (latestHeartRate !== null) {
+                heartRateLabels.push(now);
+                heartRateData.push(latestHeartRate);
+
+                if (heartRateLabels.length > 10) {
+                    heartRateLabels.shift();
+                    heartRateData.shift();
+                }
+
+                heartRateChart.update();
+            }
+        }
+
+        function startRealtimeSystem() {
+            if (!realtimeInterval) {
+                realtimeInterval = setInterval(fetchRealtimeData, 1000);
+                console.log("Real-time system started.");
+                document.getElementById('start-system').disabled = true;
+                document.getElementById('start-system').classList.add('inactive');
+                document.getElementById('stop-system').disabled = false;
+                document.getElementById('stop-system').classList.remove('inactive');
+            }
+        }
+
+        function stopRealtimeSystem() {
+            if (realtimeInterval) {
+                clearInterval(realtimeInterval);
+                realtimeInterval = null;
+                console.log("Real-time system stopped.");
+                document.getElementById('stop-system').disabled = true;
+                document.getElementById('stop-system').classList.add('inactive');
+                document.getElementById('start-system').disabled = false;
+                document.getElementById('start-system').classList.remove('inactive');
+            }
+        }
+
+        function startHistoryUpdate() {
+            if (!historyInterval) {
+                historyInterval = setInterval(updateChart, 3000);
+                console.log("History update started.");
+                document.getElementById('start-history').disabled = true;
+                document.getElementById('start-history').classList.add('inactive');
+                document.getElementById('stop-history').disabled = false;
+                document.getElementById('stop-history').classList.remove('inactive');
+            }
+        }
+
+        function stopHistoryUpdate() {
+            if (historyInterval) {
+                clearInterval(historyInterval);
+                historyInterval = null;
+                console.log("History update stopped.");
+                document.getElementById('stop-history').disabled = true;
+                document.getElementById('stop-history').classList.add('inactive');
+                document.getElementById('start-history').disabled = false;
+                document.getElementById('start-history').classList.remove('inactive');
+            }
+        }
+
+        document.getElementById('start-system').addEventListener('click', startRealtimeSystem);
+        document.getElementById('stop-system').addEventListener('click', stopRealtimeSystem);
+        document.getElementById('start-history').addEventListener('click', startHistoryUpdate);
+        document.getElementById('stop-history').addEventListener('click', stopHistoryUpdate);
+
+        startRealtimeSystem();
+        startHistoryUpdate();
+    </script>
+</body>
+</html>

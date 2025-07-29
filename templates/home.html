@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stress Prediction</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="navbar">
+            <div class="logo">
+                <span class="logo-text">IoT x ML</span>
+            </div>
+            <nav class="nav">
+                <div class="nav-links">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/prediksi" class="nav-link">Stress Prediction</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-img">
+                <img src="/static/image/hero.png" alt="">
+            </div>
+            <div class="hero-content">
+                <h1 class="hero-title">Pantau Tingkat Stres Anda</h1>
+                <p class="hero-description">Aplikasi ini membantu Anda mendeteksi level stres berdasarkan detak jantung saat tidur. Temukan solusi terbaik untuk kesehatan mental Anda!</p>
+                <a href="/prediksi">
+                    <button class="btn btn-primary">Prediksi Sekarang</button>
+                </a>
+            </div>
+        </section>
+
+        <section class="artikel">
+            <h2>Seputar Stress</h2>
+            <p>
+                Stres bisa terjadi pada siapa saja dan kapan saja. Penyebabnya bisa karena hal serius dan sepele. Meskipun wajar terjadi, stres bisa membahayakan kesehatan jika tidak dikelola dengan baik.
+            </p>
+            <p>
+                Stres adalah respons tubuh, baik psikologis maupun fisiologis, terhadap tekanan atau situasi yang sulit dikendalikan, dan dapat membahayakan kesehatan jika tidak dikelola dengan baik. Menurut WHO, pada tahun 2019, sebanyak 264 juta orang di dunia mengalami stres dan depresi. Di kalangan mahasiswa, penyebab umum stres meliputi beban tugas yang berat, tekanan akademik, dan perubahan metode pembelajaran, yang sering kali berdampak pada gangguan pola tidur.
+            </p>
+        </section>
+
+        <section class="artikel-2">
+            <div class="text">
+                <h2>Hubungan Kualitas Tidur dengan Stres</h2>
+                <p>
+                    Stres berhubungan erat dengan gangguan tidur. Gangguan tidur meliputi kesulitan memulai tidur, sering terbangun di malam hari, atau bangun terlalu dini. Hal ini menyebabkan kualitas tidur buruk. 
+                    <br>Detak jantung adalah indikator penting untuk mengukur tingkat stres Dengan memantau detak jantung saat tidur, seseorang dapat mendeteksi gangguan fisiologis akibat stres.
+                </p>
+            </div>
+            <div class="image">
+                <img src="/static/iamge/artikel-2.png" alt="">
+            </div>
+        </section>
+
+        <section class="tutorial">
+            <h2>Cara Periksa</h2>
+            <ol>
+                <li>Klik Tombol "Periksa Sekarang" atau klik menu “Stress Prediction” pada navbar untuk memulai proses deteksi.</li>
+                <li>Gunakan perangkat wearable atau sensor khusus untuk merekam detak jantung. Pastikan perangkat terpasang dengan benar sebelum Anda mulai tidur.</li>
+                <li>Tepat sebelum tidur, klik tombol "Prediksi" di aplikasi untuk memulai pengumpulan data detak jantung selama Anda tidur.</li>
+                <li>Saat Anda bangun, tekan tombol "Stop" untuk menghentikan pengumpulan data. Aplikasi kemudian akan menganalisis data detak jantung yang terekam.</li>
+            </ol>
+        </section>
+    </main>
+
+    <footer>
+        <div>
+            
+        </div>
+    </footer>
+
+    <script>
+        // Menambahkan event listener untuk hamburger button
+        document.getElementById('hamburger').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active'); // Menambahkan atau menghapus kelas 'active'
+        });
+    </script>
+
+</body>
+</html>

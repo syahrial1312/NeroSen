@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .card .icon {
+            font-size: 2em;
+        }
+
+        .heart-rate {
+            background-color: #ffe5e5;
+        }
+
+        .temperature {
+            background-color: #e5f2ff;
+        }
+
+        .stress {
+            grid-column: span 2;
+            background-color: #fff5cc;
+        }
+
+        .suggestion {
+            grid-column: span 2;
+            background-color: #e6ffe6;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 700px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="card heart-rate">
+            <h2>Heart Rate</h2>
+            <div class="value" id="heart-rate">Loading... <span class="icon">❤️</span></div>
+            <div>BPM</div>
+        </div>
+        <div class="card temperature">
+            <h2>Temperature</h2>
+            <div class="value" id="body-temperature">Loading... <span class="icon">🌡️</span></div>
+            <div>°C</div>
+        </div>
+        <div class="card stress">
+            <span class="label">Stress Prediction:</span> <span id="prediction-text">Loading...</span>
+        </div>
+        <div class="card suggestion">
+            <span class="label">Suggestion:</span> Take a short break and relax.
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2>Heart Rate History</h2>
+        <canvas id="heartRateChart"></canvas>
+    </div>
+
+    <script>
+        // Data untuk kurva history
+        const heartRateLabels = []; // Label waktu (x-axis)
+        const heartRateData = [];  // Data heart rate (y-axis)
+
+        // Konfigurasi Chart.js
+        const ctx = document.getElementById('heartRateChart').getContext('2d');
+        const heartRateChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: heartRateLabels,
+                datasets: [{
+                    label: 'Heart Rate (BPM)',
+                    data: heartRateData,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Heart Rate (BPM)'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Fungsi untuk memperbarui data real-time (setiap 1 detik)
+        function fetchRealtimeData() {
+            $.ajax({
+                url: '/get_realtime_data', // Endpoint Flask untuk mendapatkan data
+                method: 'GET',
+                success: function(response) {
+                    // Perbarui nilai pada dashboard
+                    $('#heart-rate').html(response.heart_rate + ' <span class="icon">❤️</span>');
+                    $('#body-temperature').html(response.body_temperature + ' <span class="icon">🌡️</span>');
+                    $('#prediction-text').text(response.prediction_text);
+
+                    // Simpan heart rate terbaru untuk grafik history
+                    latestHeartRate = response.heart_rate;
+                },
+                error: function() {
+                    console.error('Error fetching data');
+                }
+            });
+        }
+
+        // Variabel untuk menyimpan heart rate terbaru
+        let latestHeartRate = null;
+
+        // Fungsi untuk memperbarui grafik history (setiap 30 detik)
+        function updateChart() {
+            const now = new Date().toLocaleTimeString(); // Waktu saat ini
+
+            if (latestHeartRate !== null) {
+                // Tambahkan data ke grafik
+                heartRateLabels.push(now);
+                heartRateData.push(latestHeartRate);
+
+                // Batasi data grafik hingga 10 data terakhir
+                if (heartRateLabels.length > 10) {
+                    heartRateLabels.shift();
+                    heartRateData.shift();
+                }
+
+                // Perbarui grafik
+                heartRateChart.update();
+            }
+        }
+
+        // Panggil fungsi real-time setiap 1 detik
+        setInterval(fetchRealtimeData, 1000);
+
+        // Panggil fungsi pembaruan grafik setiap 30 detik
+        setInterval(updateChart, 30000);
+
+        // Panggilan pertama saat halaman dimuat
+        fetchRealtimeData();
+    </script>
+</body>
+</html>

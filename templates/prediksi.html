@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Dashboard</title>
+    <link rel="stylesheet" href="/static/css/stylee.css">
+</head>
+<body>
+    <header class="header">
+        <div class="navbar">
+            <div class="logo">
+                <span class="logo-text">IoT x ML</span>
+            </div>
+            <nav class="nav">
+                <div class="nav-links">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/prediksi" class="nav-link">Stress Prediction</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="card card-heart-rate">
+                <h2>Heart Rate</h2>
+                <div class="card-content">
+                    <div class="card-value" id="heart-rate">0</div>
+                    <div class="card-label">BPM</div>
+                    <div class="card-img">
+                        <img src="/static/image/bpm-icon.png" alt="heart icon">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-temperature">
+                <h2>Temperature</h2>
+                <div class="card-content">
+                    <div class="card-value" id="body-temperature">0</div>
+                    <div class="card-label">°C</div>
+                    <div class="card-img">
+                        <img src="/static/image/suhu-icon.png" alt="temp icon">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="start-btn" class="action-btn start">Start</button>
+            <span id="timer" class="timer">00:00:00</span>
+            <button id="stop-btn" class="action-btn stop">Stop</button>
+        </div>
+        
+        <div id="result-box" class="result-container hidden">
+            <h2 class="result-title">Result</h2>
+            <div class="stress-level">
+                <h3>Your Stress Level:</h3>
+                <p id="stress-level">SEDANG</p>
+            </div>
+            <div class="stress-suggestion">
+                <h3>Suggestion:</h3>
+                <p id="stress-suggestion">Kelola stresmu dengan relaksasi!</p>
+            </div>
+            <div class="monitoring">
+                <h2 class="result-title">Monitoring:</h2>
+                <div class="monitoring-items">
+                    <div class="monitoring-item">
+                        <p>Avg Heart Rate</p>
+                        <span id="avg-heart-rate">Loading...</span>
+                    </div>
+                    <div class="monitoring-item">
+                        <p>Sleep Duration</p>
+                        <span id="sleep-duration">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let timerInterval;
+        let time = 0;
+
+        const timerDisplay = document.getElementById("timer");
+        const startBtn = document.getElementById("start-btn");
+        const stopBtn = document.getElementById("stop-btn");
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                time++;
+                timerDisplay.textContent = formatTime(time);
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = formatTime(time);
+            time = 0;
+        }
+
+        function displayResult(stressLevel, suggestion, avgHeartRate, sleepDuration) {
+            const resultBox = document.getElementById("result-box");
+            resultBox.classList.remove("hidden");
+
+            document.getElementById("stress-level").textContent = stressLevel;
+            document.getElementById("stress-suggestion").textContent = suggestion;
+            document.getElementById("avg-heart-rate").textContent = `${avgHeartRate} BPM`;
+            document.getElementById("sleep-duration").textContent = sleepDuration;
+        }
+
+        let dataInterval;
+
+        function startRealtimeData() {
+            clearInterval(dataInterval);
+            dataInterval = setInterval(() => {
+                fetch('/get_realtime_data')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error(data.error);
+                        } else {
+                            document.querySelector('.card-heart-rate .card-value').textContent = data.heart_rate;
+                            document.querySelector('.card-temperature .card-value').textContent = data.body_temperature;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            }, 1000);
+        }
+
+        function stopRealtimeData() {
+            clearInterval(dataInterval);
+        }
+
+        startBtn.addEventListener('click', () => {
+            startTimer();
+            startRealtimeData();
+
+            // Start session in backend
+            fetch('/start_session', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => console.log(data.message))
+                .catch(error => console.error('Error starting session:', error));
+        });
+
+        stopBtn.addEventListener('click', () => {
+            stopTimer();
+            stopRealtimeData();
+
+            // Stop session in backend
+            fetch('/stop_session', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                    } else {
+                        displayResult(
+                            data.predict, 
+                            data.suggest,
+                            data.avg_heart_rate,
+                            timerDisplay.textContent
+                        );
+                    }
+                })
+                .catch(error => console.error('Error stopping session:', error));
+
+        });
+    </script>
+</body>
+</html>
