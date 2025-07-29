@@ -1,0 +1,361 @@
+/* === General Styles === */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* === Navbar Styles === */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #292a52;
+    z-index: 1000;
+    box-shadow: 0 4px 2px -2px gray;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffe99a;
+    transform: translateY(-3px);
+}
+
+/* Hamburger Menu (Mobile View) */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+/* === Main Content === */
+main {
+    margin-top: 80px; /* Untuk menghindari navbar fixed */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 90vh;
+    padding-top: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 50px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* === Card Styles === */
+.card {
+    width: 300px;
+    height: 180px;
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* === Heart Rate Card === */
+.card-heart-rate {
+    background-color: #ffe5e5;
+}
+
+.card-heart-rate h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.card-heart-rate .card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    overflow: hidden;
+    flex-wrap: nowrap;
+}
+
+.card-heart-rate .card-value {
+    font-size: 64px;
+    font-weight: bold;
+    color: #333;
+}
+
+.card-heart-rate .card-label {
+    font-size: 30px;
+    color: #555;
+}
+
+.card-heart-rate .card-img img {
+    /* width: 80px;
+    height: 80px; */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    overflow: hidden;
+}
+
+/* === Temperature Card === */
+.card-temperature {
+    background-color: #e5f6ff;
+}
+
+.card-temperature h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.card-temperature .card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    overflow: hidden;
+    flex-wrap: nowrap;
+}
+
+.card-temperature .card-value {
+    font-size: 64px;
+    font-weight: bold;
+    color: #333;
+}
+
+.card-temperature .card-label {
+    font-size: 32px;
+    color: #555;
+}
+
+.card-temperature .card-img img {
+    /* width: 80px;
+    height: 80px; */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    overflow: hidden;
+}
+
+
+/* Untuk div tombol dan timer */
+.actions {
+    margin-top: 6%; /* Jarak dari card ke tombol */
+    display: flex;
+    justify-content: space-between; /* Posisi di tengah */
+    align-items: center;
+    gap: 50px; /* Jarak antar tombol dan timer */
+    width: 60%;
+}
+
+.action-btn {
+    padding: 10px 20px;
+    width: 25%;
+    border: none;
+    border-radius: 25px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.action-btn.start {
+    background-color: #28a745;
+    color: white;
+}
+
+.action-btn.start:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.action-btn.stop {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-btn.stop:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+.action-btn.disabled {
+    background-color: #c0c0c0 !important; /* Warna abu-abu */
+    cursor: not-allowed; /* Kursor tidak bisa klik */
+    pointer-events: none; /* Nonaktifkan klik */
+}
+
+
+.timer {
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Container Utama */
+.result-container {
+    background: #292a52;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 60%;
+    margin: 60px auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Judul */
+.result-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #ffffff;
+    text-align: left;
+}
+
+/* Level Stres */
+.stress-level{
+    background-color: #fef6af;
+    border-radius: 8px;
+    height: 80px;
+}
+.stress-level h3, .stress-suggestion h3, .monitoring h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    color: #666;
+    text-align: left;
+    padding: 10px 0 0 5px;
+}
+
+.stress-level p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff4500;
+    margin-top: 0;
+}
+
+.stress-suggestion{
+    background-color: #affec0;
+    border-radius: 8px;
+    height: 200px;
+}
+
+.stress-suggestion p {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff4500;
+    margin-top: 0;
+}
+
+/* Monitoring Section */
+.monitoring-items {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.monitoring-item {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    width: 45%;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.monitoring-item p {
+    font-size: 12px;
+    color: #555;
+}
+
+.monitoring-item span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+    .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .card {
+        width: 60%;
+    }
+
+    .card-img img{
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .card-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .card-value {
+        font-size: 48px;
+    }
+
+    .card-img img {
+        width: 60px;
+        height: 60px;
+    }
+}
